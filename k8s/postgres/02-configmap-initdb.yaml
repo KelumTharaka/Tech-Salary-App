@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: data
+data:
+  01-schema.sql: |
+    CREATE SCHEMA IF NOT EXISTS identity;
+    CREATE SCHEMA IF NOT EXISTS salary;
+    CREATE SCHEMA IF NOT EXISTS community;
+
+    CREATE TABLE IF NOT EXISTS identity.users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        password_hash VARCHAR(255) NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS identity.roles (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(50) UNIQUE NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS identity.user_roles (
+        user_id INTEGER REFERENCES identity.users(id) ON DELETE CASCADE,
+        role_id INTEGER REFERENCES identity.roles(id) ON DELETE CASCADE,
+        PRIMARY KEY (user_id, role_id)
+    );
+
+    INSERT INTO identity.roles (name)
+    VALUES ('USER'), ('ADMIN')
+    ON CONFLICT DO NOTHING;
+
+    CREATE TABLE IF NOT EXISTS salary.salary_submissions (
+        id SERIAL PRIMARY KEY,
+        job_title VARCHAR(100) NOT NULL,
+        company VARCHAR(100) NOT NULL,
+        location VARCHAR(100) NOT NULL,
+        salary_amount DECIMAL(12, 2) NOT NULL,
+        currency VARCHAR(10) DEFAULT 'LKR',
+        years_experience INTEGER NOT NULL,
+        status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+        is_anonymous BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_salary_search
+    ON salary.salary_submissions(job_title, company, location)
+    WHERE status = 'APPROVED';
+
+    CREATE INDEX IF NOT EXISTS idx_salary_stats_filters
+    ON salary.salary_submissions(job_title, location, years_experience)
+    WHERE status = 'APPROVED';
+
+    CREATE TABLE IF NOT EXISTS community.votes (
+        id SERIAL PRIMARY KEY,
+        salary_submission_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        vote_type VARCHAR(10) CHECK (vote_type IN ('UP', 'DOWN')),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(salary_submission_id, user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS community.reports (
+        id SERIAL PRIMARY KEY,
+        salary_submission_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        reason TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
+  02-seed.sql: |
+    INSERT INTO salary.salary_submissions
+    (job_title, company, location, salary_amount, currency, years_experience, status, is_anonymous)
+    VALUES
+    ('Software Engineer', 'WSO2', 'Sri Lanka', 220000, 'LKR', 2, 'APPROVED', false),
+    ('Software Engineer', '99X', 'Sri Lanka', 260000, 'LKR', 4, 'APPROVED', false),
+    ('Senior Software Engineer', 'Sysco LABS', 'Sri Lanka', 450000, 'LKR', 7, 'APPROVED', false),
+    ('QA Engineer', 'IFS', 'Sri Lanka', 180000, 'LKR', 2, 'APPROVED', false),
+    ('DevOps Engineer', 'Dialog', 'Sri Lanka', 350000, 'LKR', 5, 'APPROVED', true),
+    ('Data Scientist', 'Virtusa', 'Sri Lanka', 400000, 'LKR', 6, 'APPROVED', false),
+    ('Frontend Developer', 'Creative Software', 'Sri Lanka', 900000, 'LKR', 2, 'APPROVED', false),
+    ('Frontend Developer', 'Surge Global', 'Sri Lanka', 1500000, 'LKR', 4, 'APPROVED', false),
+    ('Full Stack Developer', 'WSO2', 'Sri Lanka', 1450000, 'LKR', 5, 'APPROVED', false),
+    ('Mobile Developer', '99X', 'Sri Lanka', 1100000, 'LKR', 3, 'APPROVED', false),
+    ('Software Engineer', 'Google', 'United States', 1800000, 'LKR', 3, 'APPROVED', false),
+    ('Senior Software Engineer', 'Amazon', 'United States', 2500000, 'LKR', 8, 'APPROVED', false),
+    ('Backend Engineer', 'Zalando', 'Germany', 900000, 'LKR', 5, 'APPROVED', false),
+    ('Platform Engineer', 'Revolut', 'United Kingdom', 1100000, 'LKR', 6, 'APPROVED', false),
+    ('ML Engineer', 'Meta', 'Ireland', 1600000, 'LKR', 7, 'APPROVED', false),
+    ('Frontend Developer', 'Canva', 'Australia', 980000, 'LKR', 4, 'APPROVED', false),
+    ('Data Engineer', 'Grab', 'Singapore', 1400000, 'LKR', 5, 'APPROVED', false),
+    ('Site Reliability Engineer', 'Google', 'Switzerland', 2100000, 'LKR', 9, 'APPROVED', false),
+    ('Mobile Developer', 'Shopify', 'Canada', 1200000, 'LKR', 5, 'APPROVED', false),
+    ('Security Engineer', 'Microsoft', 'India', 850000, 'LKR', 4, 'APPROVED', false),
+    ('Software Engineer', 'Careem', 'United Arab Emirates', 1300000, 'LKR', 4, 'APPROVED', false),
+    ('Software Engineer', 'Confidential', 'Sri Lanka', 200000, 'LKR', 1, 'PENDING', true),
+    ('QA Engineer', 'Confidential', 'Sri Lanka', 175000, 'LKR', 1, 'REJECTED', true);
