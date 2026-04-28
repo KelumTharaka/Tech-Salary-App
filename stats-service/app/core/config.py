@@ -4,8 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     APP_NAME: str = "stats-service"
     APP_HOST: str = "0.0.0.0"
-    APP_PORT: int = 8000
-    DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/salarydb"
+    APP_8PORT: int = 8000
+    DATABASE_URL: str = ""
     CORS_ORIGINS: str = "*"
 
     model_config = SettingsConfigDict(
