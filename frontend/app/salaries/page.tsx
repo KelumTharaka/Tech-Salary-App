@@ -17,7 +17,7 @@ import { Search, SlidersHorizontal, X, RotateCcw } from "lucide-react"
 
 const ALL_VALUE = "__all__"
 const API_BASE =
-  process.env.NEXT_PUBLIC_SALARY_API_URL || "http://localhost:8000/api/v1/salary"
+  process.env.NEXT_PUBLIC_SALARY_API_URL || "https://20.197.82.255.nip.io/api/v1"
 
 export default function SalariesPage() {
   const [salaries, setSalaries] = useState<SalaryEntry[]>([])
@@ -31,7 +31,7 @@ export default function SalariesPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState<"newest" | "highest">("newest")
   const [page, setPage] = useState(1)
-  const [limit] = useState(10)
+  const [limit] = useState(20)
   const [total, setTotal] = useState(0)
   const [locations, setLocations] = useState<string[]>([])
   const [companies, setCompanies] = useState<string[]>([])
@@ -73,7 +73,7 @@ export default function SalariesPage() {
 useEffect(() => {
   async function loadFilters() {
     try {
-      const res = await fetch(`${API_BASE}/filters`)
+      const res = await fetch(`${API_BASE}/search/filters`)
 
       if (!res.ok) throw new Error()
 
