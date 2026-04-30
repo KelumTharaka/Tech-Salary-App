@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: bff-service
-          image: YOUR_ACR.azurecr.io/bff-service:latest
+          image: techsalaryacrkelum01.azurecr.io/bff-service:latest
           ports:
             - containerPort: 8000
           envFrom:

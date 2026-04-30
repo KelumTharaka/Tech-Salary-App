@@ -27,30 +27,30 @@ stages:
               tags: |
                 latest
                 $(Build.BuildId)
+#
+#          - task: Docker@2
+#            displayName: Build and push bff-service
+#            inputs:
+#              containerRegistry: 'acr-service-connection'
+#              repository: 'bff-service'
+#              command: 'buildAndPush'
+#              Dockerfile: 'bff-service/Dockerfile'
+#              buildContext: 'bff-service'
+#              tags: |
+#                latest
+#                $(Build.BuildId)
 
-          - task: Docker@2
-            displayName: Build and push bff-service
-            inputs:
-              containerRegistry: 'acr-service-connection'
-              repository: 'bff-service'
-              command: 'buildAndPush'
-              Dockerfile: 'bff-service/Dockerfile'
-              buildContext: 'bff-service'
-              tags: |
-                latest
-                $(Build.BuildId)
-
-          - task: Docker@2
-            displayName: Build and push stats-service
-            inputs:
-              containerRegistry: 'acr-service-connection'
-              repository: 'stats-service'
-              command: 'buildAndPush'
-              Dockerfile: 'stats-service/Dockerfile'
-              buildContext: 'stats-service'
-              tags: |
-                latest
-                $(Build.BuildId)
+#          - task: Docker@2
+#            displayName: Build and push stats-service
+#            inputs:
+#              containerRegistry: 'acr-service-connection'
+#              repository: 'stats-service'
+#              command: 'buildAndPush'
+#              Dockerfile: 'stats-service/Dockerfile'
+#              buildContext: 'stats-service'
+#              tags: |
+#                latest
+#                $(Build.BuildId)
 
   - stage: Deploy
     displayName: Deploy to AKS
@@ -79,23 +79,23 @@ stages:
               useConfigurationFile: true
               configuration: 'k8s/postgres'
 
-          - task: Kubernetes@1
-            displayName: Apply stats-service resources
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'aks-serviceaccount-connection'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: 'k8s/stats-service'
-
-          - task: Kubernetes@1
-            displayName: Apply bff-service resources
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'aks-serviceaccount-connection'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: 'k8s/bff-service'
+#          - task: Kubernetes@1
+#            displayName: Apply stats-service resources
+#            inputs:
+#              connectionType: 'Kubernetes Service Connection'
+#              kubernetesServiceEndpoint: 'aks-serviceaccount-connection'
+#              command: 'apply'
+#              useConfigurationFile: true
+#              configuration: 'k8s/stats-service'
+#
+#          - task: Kubernetes@1
+#            displayName: Apply bff-service resources
+#            inputs:
+#              connectionType: 'Kubernetes Service Connection'
+#              kubernetesServiceEndpoint: 'aks-serviceaccount-connection'
+#              command: 'apply'
+#              useConfigurationFile: true
+#              configuration: 'k8s/bff-service'
 
           - task: Kubernetes@1
             displayName: Apply frontend resources
@@ -106,11 +106,11 @@ stages:
               useConfigurationFile: true
               configuration: 'k8s/frontend'
 
-          - task: Kubernetes@1
-            displayName: Apply ingress resources
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'aks-serviceaccount-connection'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: 'k8s/ingress'
+#          - task: Kubernetes@1
+#            displayName: Apply ingress resources
+#            inputs:
+#              connectionType: 'Kubernetes Service Connection'
+#              kubernetesServiceEndpoint: 'aks-serviceaccount-connection'
+#              command: 'apply'
+#              useConfigurationFile: true
+#              configuration: 'k8s/ingress'
